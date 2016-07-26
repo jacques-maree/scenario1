@@ -1,0 +1,136 @@
+
+
+ssh-keygen -t rsa -b 4096 -C "jacques.maree@spacebel.be"
+eval `ssh-agent -s`
+ssh-add ./id_rsa
+
+git init
+git clone https://github.com/jacques-maree/toto
+git clone gitolite@isis.cnes-isis.toulouse.atos.net:ccsds/CCSDS/COM.git
+git clone https://egscc.telespazio-vega.de/git/r/egscc/kernel.git
+
+git config --list
+
+git status
+git lola
+git log --oneline --decorate # list local branches
+
+git add toto.txt
+git commit -m "message"
+git add-commit # add and commit everything with auto message date
+git push origin master #
+git push # When push.default is set to 'matching', git will push local branches
+         #    to the remote branches that already exist with the same name.
+         # Since Git 2.0, Git defaults to the more conservative 'simple'
+         #    behavior, which only pushes the current branch to the corresponding
+         #    remote branch that 'git pull' uses to update the current branch.
+
+git commit --amend # ouvre l'éditeur pour modifier le commit puis commit
+
+rm toto.txt
+git rm -f toto.txt # -f Si vous avez auparavant modifié et indexé le fichier, son élimination doit être forcée
+git rm --cached readme.txt # abandonner le suivi de version d'un fichier tout en le conservant dans la copie de travail
+
+git remote
+git remote show origin
+
+git branch -v # verbose
+git branch --remote # list remote branches
+git branch BBB # create branch
+git checkout BBB # go to branch
+                 # ATTENTION In case you have uncommitted changes when you switch to another branch,
+                 #     Git will try to merge those changes on to the target branch.
+                 # If the changes are incompatible, then Git will not allow the switch.
+                 # You can force the switch using the -f option e.g.
+                 #     git checkout -f master
+                 # if you don't care about loosing the uncommitted changes.
+                 # It is good practice to switch branches only when the working directory is clean.
+git checkout -b BBB # create an d goto branch
+
+git checkout master # se remettre dans master
+git merge BBB # copier les nouveautés de BBB
+git checkout --ours toto.txt
+git checkout --theirs toto.txt
+git merge BBB --strategy-option theirs
+git merge -Xours BBB # la branche courante prime
+git merge -Xtheirs origin/master # la branche origin/master prime
+git branch -d correctif # supprimer une branche temporaire
+
+# merge conserve l'endroit du branching
+# rebase déplace l'endroit du branching
+# NE JAMAIS FAIRE DE REBASE SUR LA BRANCHE MASTER
+git checkout feature # se remettre dans master
+git rebase master
+git rebase --onto master serveur client # Extraire la branche client, déterminer les patchs depuis l'ancêtre commun des branches client et serveur puis les rejouer sur master
+git checkout master # aller sur master
+git merge client # déplacer le HEAD de master en fin.
+
+git diff <file> # view changes in the working tree not yet staged
+git diff --cached < file > # view the changes between the index and the last commit
+git diff HEAD <file > # view the changes in the working tree since the last commit
+git diff <commit1> <commit2> <file> # view changes between two commits
+git diff HEAD~1 HEAD toto.txt # example
+git diff 123132 456456 toto.txt # example
+
+git checkout -- toto.txt # annuler des modifications que vous avez faites sur la copie locale.
+git config --global alias.unstage 'reset HEAD --'
+
+git reset HEAD toto.txt # unstage changes !!! do next command; pour désindexer un fichier
+git revert <commit> --no-edit # undo committed change
+git checkout --ours toto.txt
+git checkout --theirs toto.txt
+
+git tag -a <version> <commit> -m "message"
+
+git fetch origin # rapatrie les modifs remote => master (local) et origin/master (remote)
+                 # crée automatiquement ce qu'on appelle une branche de suivi
+git merge origin/branche
+git push [serveur distant] [branche]
+git checkout --track origin/correctionserveur # branche de suivi
+
+??????????????
+git pull -Xtheirs
+git rebase <commit>
+git cherry-pick 1023e24
+git rebase -Xtheirs origin/master # rebase preferring current branch changes merge during conflicts
+git merge  -Xtheirs BBB
+
+
+git config --global alias.last 'log -1 HEAD'
+
+CONFIGURATION (.git/config)
+============================
+[core]
+	repositoryformatversion = 0
+	filemode = false
+	bare = false
+	logallrefupdates = true
+	symlinks = false
+	ignorecase = true
+	hideDotFiles = dotGitOnly
+	autocrlf = false
+[gui]
+	wmstate = normal
+	geometry = 2000x1324+1038+1127 212 251
+[remote "origin"]
+	url = https://github.com/jacques-maree/toto.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "master"]
+	remote = origin
+	merge = refs/heads/master
+[credential]
+	helper = store
+[alias]
+	lol = log --graph --decorate --pretty=oneline --abbrev-commit
+	lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+	add-commit = !git add -A && git commit -m \"`date`\"
+[color]
+	branch = auto
+	diff = auto
+	interactive = auto
+	status = auto
+[http]
+	sslVerify = false
+	postBuffer = 524288000
+[push]
+	default = simple
